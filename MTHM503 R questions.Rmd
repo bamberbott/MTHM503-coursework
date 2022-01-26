@@ -1,0 +1,169 @@
+---
+title: "670036975, MTHM503 Coursework, Sections B and C"
+output:
+  html_document: default
+---
+
+# Section B questions
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+library(tidyverse)
+library(Hmisc)
+library(dplyr)
+
+expected <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\\copdexpected.csv"))
+observed <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\\copdobserved.csv"))
+
+summary(observed)
+observed
+
+admissions <- sum(colSums(Filter(is.numeric, observed)))
+admissions
+
+smr <- cbind(expected[1],round(expected[-1]/observed[-1],1))
+## smr_contents <- array(c(unlist(subset(smr, select = -c(Name)))))
+smr_smooth <- smr
+
+plot(smr$Name, smr$E2001)
+
+### SMR = observed deaths / expected deaths
+
+```
+## 1
+
+### Between 2001 and 2010, there were `r admissions` admissions to hospital in the UK for COPD
+
+## 2
+
+`r smr`
+
+### Above is a visualisation of the raw standardised morbidity ratios of this data. Below is the aforementioned visualisation after the data has been smoothed.
+
+`r smr_smooth`
+
+### When comparing these two data visualisations, it can be noted that smoothing has had a noticeable effect on the appearance of the results.
+
+## 3
+
+### Over time, it appears that 
+
+## 4
+
+### Based on the results of the analyses of the COPD data (as outlined above), there are a few measures that ought to be prioritised if coping with COPD hospitalisations is a high priority for the NHS. This includes
+
+
+
+
+
+# Section C questions
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+library(cluster)
+library(factoextra)
+library(plyr)
+
+characteristics <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\\Characteristics.csv"))
+new_substations <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\\NewSubstations.csv"))
+
+load("C:\\Users\\amber_000\\data_science\\mthm503\\January_2013.RData")
+
+# define a data frame that contains just the columns with the substation readings
+
+readings <- as.data.frame(subset(January_2013, select = -c(Date, Substation)))
+readings$Averages <- rowMeans(January_2013[,3:145])
+days <- data.frame(unique(January_2013$Date))
+table(January_2013$Substation)
+
+## trying to sum all observation columns together and then averaging the values for each day for each substation. This should give you the average daily demand for each substation.
+
+# sum all columns and put them together into separate data frame, also add date and substation columns to allow for average based on date to be calculated
+
+average_daily_demand <- data.frame(scale(readings$Averages), January_2013$Date, January_2013$Substation)
+average_daily_demand
+
+## average daily demand for each substation is all observations / number of observations, therefore it is the total number of readings for each station divided by number of days
+
+# ddply(Jan_2013, "Substation", numcolwise(sum))
+
+averages <- data.frame()
+
+for(i in unique(January_2013$Date)){
+  for(j in average_daily_demand){
+    averages$i <- (readings[readings$Date == i])
+  }
+    
+}
+
+
+## scaling the data prior to the clustering process
+
+Jan2013_subset <- na.omit(subset(January_2013, select = -c(Date, Substation)))
+Jan2013_subset
+
+scaled <- scale(average_daily_demand)
+summary(scaled)
+scaled
+
+## the default method was used for the clustering, due to previous attempts at calculating agglomerative coefficients being unsuccessful
+
+cluster <- agnes(scaled)
+
+## dendrogram
+
+dendrogram <- pltree(cluster, cex=0.6, hang=-1, main="Dendrogram")
+
+## what is the optimal number of clusters
+
+gap_statistic <- clusGap(Jan2013_subset, FUN=hcut, nstart=25, K.max=10, B=50)
+fviz_gap_stat(gap_statistic)
+
+## based on the above, the optimal number of clusters seems to be
+
+## distance matrix
+
+dist_matrix <- dist(Jan2013_subset, method="euclidean")
+
+
+## plotting demand
+
+demand_plots = ggplot(new_substations, aes(x=Substation) + geom_line(aes(y=) + geon_line(aes()) + geom_line(aes()) + geom_line(aes()) + geom_line(aes())))
+
+
+
+```
+
+## 1
+
+### i
+
+#### The data in the Characteristics.csv dataset consists of a series of information about a series of power substations.   `r `
+
+### ii
+
+## 2
+
+### i
+
+#### Dendrogram: 
+
+### ii
+
+#### x number of clusters ended up being chosen here
+
+### iii
+
+## 3 
+
+### i
+
+#### Average daily demand plots: `r demand_plots`
+
+### ii
+
+### iii
+
+## 4
+
+### i 
