@@ -53,9 +53,6 @@ plot(smr$Name, smr$E2001)
 ### Based on the results of the analyses of the COPD data (as outlined above), there are a few measures that ought to be prioritised if coping with COPD hospitalisations is a high priority for the NHS. This includes
 
 
-
-
-
 # Section C questions
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
