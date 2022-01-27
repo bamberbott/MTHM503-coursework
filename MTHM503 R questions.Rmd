@@ -71,41 +71,29 @@ load("C:\\Users\\amber_000\\data_science\\mthm503\\January_2013.RData")
 readings <- as.data.frame(subset(January_2013, select = -c(Date, Substation)))
 readings$Averages <- rowMeans(January_2013[,3:145])
 days <- data.frame(unique(January_2013$Date))
-table(January_2013$Substation)
 
-## trying to sum all observation columns together and then averaging the values for each day for each substation. This should give you the average daily demand for each substation.
+## Getting and scaling the average daily demands, and putting them into a single dataframe
 
-# sum all columns and put them together into separate data frame, also add date and substation columns to allow for average based on date to be calculated
+Mean <- scale(readings$Averages)
+Date <- January_2013$Date
+Substation <- January_2013$Substation
+average_daily_demand <- data.frame(Mean, Date, Substation)
+add <- as.data.frame(aggregate(average_daily_demand$Mean, list(average_daily_demand$Substation), FUN=mean))
+add
 
-average_daily_demand <- data.frame(scale(readings$Averages), January_2013$Date, January_2013$Substation)
-average_daily_demand
+## finding the method with the highest agglomerative coefficient to use for the hierarchical cluster
 
-## average daily demand for each substation is all observations / number of observations, therefore it is the total number of readings for each station divided by number of days
-
-# ddply(Jan_2013, "Substation", numcolwise(sum))
-
-averages <- data.frame()
-
-for(i in unique(January_2013$Date)){
-  for(j in average_daily_demand){
-    averages$i <- (readings[readings$Date == i])
-  }
-    
+m <- c( "average", "single", "complete", "ward")
+names(m) <- c( "average", "single", "complete", "ward")
+ac <- function(x) {
+  agnes(add, method = x)$ac
 }
 
+(sapply(m,ac))
 
-## scaling the data prior to the clustering process
+# highest agglomerative coefficient is for the Ward method, therefore that is the one that will be used
 
-Jan2013_subset <- na.omit(subset(January_2013, select = -c(Date, Substation)))
-Jan2013_subset
-
-scaled <- scale(average_daily_demand)
-summary(scaled)
-scaled
-
-## the default method was used for the clustering, due to previous attempts at calculating agglomerative coefficients being unsuccessful
-
-cluster <- agnes(scaled)
+cluster <- agnes(add, method="ward")
 
 ## dendrogram
 
@@ -113,20 +101,33 @@ dendrogram <- pltree(cluster, cex=0.6, hang=-1, main="Dendrogram")
 
 ## what is the optimal number of clusters
 
-gap_statistic <- clusGap(Jan2013_subset, FUN=hcut, nstart=25, K.max=10, B=50)
+gap_statistic <- clusGap(add, FUN=hcut, nstart=25, K.max=10, B=50)
 fviz_gap_stat(gap_statistic)
 
-## based on the above, the optimal number of clusters seems to be
+## based on the above, the optimal number of clusters seems is 9
 
 ## distance matrix
 
-dist_matrix <- dist(Jan2013_subset, method="euclidean")
+dist_matrix <- dist(add, method="euclidean")
 
+final_cluster <- hclust(dist_matrix, method="ward.D2")
+
+groups <- cutree(final_cluster, k=9)
+
+final <- cbind(add, cluster=groups)
+final
 
 ## plotting demand
 
 demand_plots = ggplot(new_substations, aes(x=Substation) + geom_line(aes(y=) + geon_line(aes()) + geom_line(aes()) + geom_line(aes()) + geom_line(aes())))
 
+## working with Characteristics.csv
+
+
+
+## allocating new substations
+
+new_substations
 
 
 ```
