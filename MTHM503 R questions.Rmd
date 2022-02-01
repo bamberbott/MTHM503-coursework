@@ -2,6 +2,7 @@
 title: "670036975, MTHM503 Coursework, Sections B and C"
 output:
   html_document: default
+  pdf_document: default
 ---
 
 # Section B questions
@@ -16,31 +17,32 @@ expected <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\
 observed <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\\copdobserved.csv"))
 
 summary(observed)
-observed
 
 admissions <- sum(colSums(Filter(is.numeric, observed)))
-admissions
 
 smr <- cbind(expected[1],round(expected[-1]/observed[-1],1))
-## smr_contents <- array(c(unlist(subset(smr, select = -c(Name)))))
-smr_smooth <- smr
-
-plot(smr$Name, smr$E2001)
+smr_contents <- array(c(unlist(subset(smr, select = -c(Name)))))
+#smr_smooth <- geom_smooth(smr_contents)
 
 ### SMR = observed deaths / expected deaths
+
+smr_plot <- ggplot(smr, aes(x=Name, y=E2001))
+#smr_smooth_plot <- ggplot(smr_smooth, aes(x=Name, y=E2001))
 
 ```
 ## 1
 
 ### Between 2001 and 2010, there were `r admissions` admissions to hospital in the UK for COPD
 
+### 
+
 ## 2
 
-`r smr`
+`r smr_plot`
 
 ### Above is a visualisation of the raw standardised morbidity ratios of this data. Below is the aforementioned visualisation after the data has been smoothed.
 
-`r smr_smooth`
+
 
 ### When comparing these two data visualisations, it can be noted that smoothing has had a noticeable effect on the appearance of the results.
 
@@ -63,8 +65,17 @@ library(plyr)
 
 characteristics <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\\Characteristics.csv"))
 new_substations <- as.data.frame(read.csv("C:\\Users\\amber_000\\data_science\\mthm503\\NewSubstations.csv"))
+characteristics
 
 load("C:\\Users\\amber_000\\data_science\\mthm503\\January_2013.RData")
+
+# getting distributions for the characteristics data frame
+
+transformer_ratings <- ggplot(characteristics, aes(x=characteristics$Transformer_RATING)) + geom_histogram(binwidth=50,alpha=.5,position="dodge",colour="red")
+
+customer_total <- ggplot(characteristics, aes(x=characteristics$TOTAL_CUSTOMERS)) + geom_histogram(binwidth=1,alpha=.5,position="dodge",colour="red")
+
+industrial_commercial <- ggplot(characteristics, aes(x=characteristics$Percentage_IC)) + geom_histogram(binwidth=.05,alpha=.5,position="dodge",colour="red")
 
 # define a data frame that contains just the columns with the substation readings
 
@@ -97,7 +108,7 @@ cluster <- agnes(add, method="ward")
 
 ## dendrogram
 
-dendrogram <- pltree(cluster, cex=0.6, hang=-1, main="Dendrogram")
+dendrogram <- pltree(cluster,cex=0.1, hang=-5, main="Dendrogram")
 
 ## what is the optimal number of clusters
 
@@ -115,11 +126,12 @@ final_cluster <- hclust(dist_matrix, method="ward.D2")
 groups <- cutree(final_cluster, k=9)
 
 final <- cbind(add, cluster=groups)
-final
 
 ## plotting demand
 
-demand_plots = ggplot(new_substations, aes(x=Substation) + geom_line(aes(y=) + geon_line(aes()) + geom_line(aes()) + geom_line(aes()) + geom_line(aes())))
+# demand_plots = ggplot(new_substations, aes(x=Substation) + geom_line(aes(y=characteristics$TRANSFORMER_TYPE)) + geom_line(aes(y=characteristics$TOTAL_CUSTOMERS)) + geom_line(aes(y=characteristics$Transformer_RATING)) + geom_line(aes(y=characteristics$Percentage_IC)) + geom_line(aes(y=characteristics$LV_FEEDER_COUNT)) + geom_line(aes(y=characteristics$GRID_REFERENCE)))
+
+clusplot(groups, final_cluster)
 
 ## working with Characteristics.csv
 
@@ -127,7 +139,7 @@ demand_plots = ggplot(new_substations, aes(x=Substation) + geom_line(aes(y=) + g
 
 ## allocating new substations
 
-new_substations
+new_substation_add <- aggregate() 
 
 
 ```
@@ -137,26 +149,27 @@ new_substations
 ### i
 
 #### The data in the Characteristics.csv dataset consists of a series of information about a series of power substations.   `r `
+`r transformer_ratings`
 
-### ii
+`r customer_total`
+
+`r industrial_commercial`
 
 ## 2
 
 ### i
 
-#### Dendrogram: 
+#### Dendrogram: `r dendrogram`
 
 ### ii
 
-#### x number of clusters ended up being chosen here
-
-### iii
+#### 9 clusters seemed to be the most appropriate here 
 
 ## 3 
 
 ### i
 
-#### Average daily demand plots: `r demand_plots`
+#### Average daily demand plots:
 
 ### ii
 
